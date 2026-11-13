@@ -1,0 +1,278 @@
+/* ==========================================================================
+   tab/supply-chain/supply-chain.css — styles owned by the two interactive
+   demos (Simi-Part similarity graph, Factory Flow closed loop).
+   Loaded after styles.css; selectors here are demo-scoped, so no cascade
+   conflict with the shared dashboard styles.
+   ========================================================================== */
+
+/* ── Interactive similarity graph (Simi-Part) ──────────────── */
+.browser.is-cluster .app-top { border-bottom: 0; }  /* no grey rule below the buttons */
+.browser.is-cluster .app-body { padding: 12px 16px 14px; }
+.cluster-controls { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.cluster-mode { display: inline-flex; gap: 6px; flex: none; }
+.cluster-mode button {
+  font-size: 11px; font-weight: 600; line-height: 1.2; white-space: nowrap;
+  padding: 6px 13px; border: 1px solid var(--line); border-radius: 999px;
+  color: var(--ink-3); background: #fff;
+  transition: color .2s var(--ease), background .2s var(--ease), border-color .2s var(--ease);
+}
+.cluster-mode button:hover { color: var(--blue); border-color: var(--blue-2); }
+.cluster-mode button.active { color: #fff; background: var(--blue); border-color: var(--blue); }
+.cluster-mode button:focus-visible { outline: 2px solid var(--blue-2); outline-offset: 2px; }
+.cluster-back {
+  display: inline-flex; align-items: center; gap: 4px; flex: none;
+  font-size: 11px; font-weight: 600; color: var(--blue);
+  padding: 5px 8px 5px 4px; border-radius: 6px; white-space: nowrap;
+  transition: background .2s var(--ease);
+}
+.cluster-back:hover { background: var(--blue-wash); }
+.cluster-back:focus-visible { outline: 2px solid var(--blue-2); outline-offset: 2px; }
+.cluster-back svg { width: 13px; height: 13px; flex: none; }
+.cluster-count { margin-left: auto; font-size: 10.5px; color: var(--ink-4); white-space: nowrap; }
+
+/* Twice the height of the previous stage: 1000x1000 canvas, clusters breathe. */
+.cluster-stage { position: relative; width: 100%; height: 536px; overflow: hidden; }
+.cluster-svg { display: block; width: 100%; height: 100%; }
+.cluster-node { transition: transform .95s cubic-bezier(.22, .61, .36, 1); }
+.cluster-links line { stroke: var(--blue-2); stroke-width: 1.1; opacity: 0; transition: opacity .55s var(--ease); }
+.cluster-halo { opacity: 0; transition: opacity .55s var(--ease); }
+.cluster-label, .cluster-gap-text, .cluster-sub-label {
+  font-family: var(--font); text-anchor: middle; opacity: 0;
+  transition: opacity .5s var(--ease);
+}
+.cluster-label { font-size: 24px; font-weight: 650; letter-spacing: .1em; fill: var(--ink-3); }
+.cluster-gap-text { font-size: 19px; font-weight: 550; letter-spacing: .02em; fill: var(--blue); }
+.cluster-sub-label { font-size: 18px; font-weight: 600; letter-spacing: .08em; fill: var(--ink-4); }
+
+.cluster-stage[data-mode="aggregate"] .cluster-links line { opacity: .18; }
+.cluster-stage[data-mode="aggregate"] .cluster-halo { opacity: .07; }
+.cluster-stage[data-mode="aggregate"] .cluster-label,
+.cluster-stage[data-mode="aggregate"] .cluster-gap-text,
+.cluster-stage[data-mode="aggregate"] .cluster-sub-label { opacity: 1; }
+
+/* L2: the two SVG text lines stay in the 1000x1000 viewBox, but the arrow is
+   now the SAME HTML component as the L1 hint (same classes, same 20x20 svg,
+   same path / stroke-width). It therefore picks up the identical 15px desktop
+   size and the 12px / 11px mobile sizes automatically — no fixed 2px stroke
+   that looked fat on small screens. Quote lines use --family-color. */
+.cluster-find, .cluster-vendor-lines, .cluster-find-arrow { opacity: 0; transition: opacity .5s var(--ease); }
+.cluster-stage[data-view="family"][data-mode="aggregate"] .cluster-find,
+.cluster-stage[data-view="family"][data-mode="aggregate"] .cluster-vendor-lines,
+.cluster-stage[data-view="family"][data-mode="aggregate"] .cluster-find-arrow { opacity: 1; }
+.cluster-find text {
+  font-family: var(--font); font-size: 24px; font-weight: 600;
+  fill: var(--blue); text-anchor: start;
+}
+/* Higher specificity than .cluster-stage .tab-hint.cluster-l1-hint (which is
+   display:none outside L1) — only the position changes, not the arrow itself. */
+.cluster-stage .cluster-find-arrow.tab-hint.cluster-l1-hint {
+  position: absolute; left: 62%; top: 20.1%; z-index: 3;
+  /* JS sets left/top to the CTM-mapped SVG point; both are the CENTRE. */
+  transform: translate(-50%, -50%);
+  display: inline-flex; flex-direction: row; align-items: center; justify-content: center;
+  gap: 0; margin: 0; padding: 0; font-size: inherit; font-weight: inherit;
+  line-height: 1; white-space: nowrap; color: var(--blue);
+  background: transparent; border: 0; cursor: default; pointer-events: none;
+}
+.cluster-vendor-lines line {
+  stroke: var(--family-color, var(--blue-2)); stroke-width: 1.4; opacity: .6;
+}
+.cluster-vendor-label {
+  font-family: var(--font); font-size: 19px; font-weight: 600;
+  fill: var(--ink-2); text-anchor: middle;
+}
+
+/* L1: a whole cluster is a click target only when it is actually grouped. */
+.cluster-family { cursor: default; }
+.cluster-stage[data-view="all"][data-mode="aggregate"] .cluster-family { cursor: pointer; }
+.cluster-stage[data-view="all"][data-mode="aggregate"] .cluster-family:hover .cluster-halo,
+.cluster-stage[data-view="all"][data-mode="aggregate"] .cluster-family:focus-visible .cluster-halo { opacity: .16; }
+.cluster-stage[data-mode="separate"] .cluster-family { pointer-events: none; }
+.cluster-hit { pointer-events: none; }
+.cluster-stage[data-view="all"][data-mode="aggregate"] .cluster-hit { pointer-events: all; }
+
+/* Compact L1 hint: text ABOVE METAL, then the same arrow as .tab-hint rotated
+   to point DOWN. It takes no horizontal gutter, so clusters stay symmetric. */
+.cluster-stage .tab-hint.cluster-l1-hint {
+  position: absolute; left: 32%; top: 3%; z-index: 3;
+  transform: translateX(-50%); display: none;
+  flex-direction: column; align-items: center; gap: 2px;
+  margin-left: 0; padding: 0; font-size: 10.5px; font-weight: 600; line-height: 1.2;
+  white-space: nowrap; color: var(--blue); background: transparent; border: 0; cursor: pointer;
+}
+.cluster-stage[data-view="all"][data-mode="aggregate"] .tab-hint.cluster-l1-hint { display: inline-flex; }
+.cluster-stage .tab-hint.cluster-l1-hint svg {
+  width: 15px; height: 15px; flex: none;
+  transform: rotate(-90deg); transition: transform .2s var(--ease);
+}
+.cluster-stage .tab-hint.cluster-l1-hint:hover { color: var(--blue-ink); }
+.cluster-stage .tab-hint.cluster-l1-hint:hover svg { transform: rotate(-90deg) translateX(-3px); }
+.cluster-stage .tab-hint.cluster-l1-hint:focus-visible {
+  outline: 2px solid var(--blue-2); outline-offset: 3px; border-radius: 6px;
+}
+
+/* Below all parts: a chain that looks navigable but deliberately is not.
+   No underline and no bottom border — hover only changes colour / wash. */
+.cluster-detail-link {
+  position: absolute; left: 50%; bottom: 10%; transform: translateX(-50%); z-index: 3;
+  font-size: 13px; font-weight: 600; color: var(--blue); white-space: nowrap;
+  text-decoration: none; cursor: pointer; padding: 6px 10px; border-radius: 6px;
+  border: 0; transition: color .2s var(--ease), background .2s var(--ease);
+}
+.cluster-detail-link:hover, .cluster-detail-link:focus-visible {
+  color: var(--blue-ink); background: var(--blue-wash); outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cluster-node, .cluster-links line, .cluster-halo, .cluster-label,
+  .cluster-gap-text, .cluster-sub-label, .cluster-find, .cluster-vendor-lines,
+  .cluster-find-arrow, .cluster-stage .tab-hint.cluster-l1-hint svg { transition-duration: .01ms; }
+}
+@media (max-width: 860px) { .cluster-stage { height: 420px; } }
+@media (max-width: 600px) {
+  .cluster-stage { height: 250px; }
+  .cluster-controls { flex-wrap: wrap; gap: 8px; }
+  .cluster-count { margin-left: 0; width: 100%; text-align: right; font-size: 9.5px; }
+  .cluster-mode button { padding: 5px 10px; font-size: 10.5px; }
+  .cluster-label { font-size: 34px; letter-spacing: .04em; }
+  .cluster-sub-label { font-size: 28px; }
+  .cluster-gap-text { display: none; }
+  .cluster-find text { font-size: 32px; }
+  .cluster-vendor-label { font-size: 26px; }
+  .cluster-stage .tab-hint.cluster-l1-hint { top: 0; font-size: 8.5px; gap: 1px; }
+  .cluster-stage .tab-hint.cluster-l1-hint svg { width: 12px; height: 12px; }
+  .cluster-detail-link { font-size: 9.5px; white-space: normal; width: 92%; text-align: center; bottom: 10%; }
+}
+@media (max-width: 360px) {
+  .cluster-stage .tab-hint.cluster-l1-hint { font-size: 8px; }
+  .cluster-stage .tab-hint.cluster-l1-hint svg { width: 11px; height: 11px; }
+  /* 390px uses 32px; 360/320px step back to 30px so the longer line still fits. */
+  .cluster-find text { font-size: 30px; }
+}
+
+/* ── Interactive operations loop (Factory Flow) ─────────────── */
+.browser.is-flow .app-top { border-bottom: 0; }
+.browser.is-flow .app-body { padding: 12px 16px 14px; }
+.flow-controls { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.flow-mode { display: inline-flex; gap: 6px; flex: none; }
+.flow-mode button {
+  font-size: 10.5px; font-weight: 600; line-height: 1.2; white-space: nowrap;
+  padding: 6px 11px; border: 1px solid var(--line); border-radius: 999px;
+  color: var(--ink-3); background: #fff;
+  transition: color .2s var(--ease), background .2s var(--ease), border-color .2s var(--ease);
+}
+.flow-mode button:hover { color: var(--blue); border-color: var(--blue-2); }
+.flow-mode button.active { color: #fff; background: var(--blue); border-color: var(--blue); }
+.flow-mode button:focus-visible { outline: 2px solid var(--blue-2); outline-offset: 2px; }
+.flow-count { margin-left: auto; font-size: 10.5px; color: var(--ink-4); white-space: nowrap; }
+
+/* The 1000x1120 viewBox is taller than Simi-Part's square one: cards now
+   hold three illustrated nodes and the caption can wrap to 2–3 lines.
+   aspect-ratio keeps the ring proportional at every width (no fixed height). */
+.flow-stage { position: relative; width: 100%; aspect-ratio: 1000 / 1120; height: auto; overflow: hidden; }
+.flow-svg { display: block; width: 100%; height: 100%; }
+.flow-title { font-family: var(--font); font-size: 22px; font-weight: 650; fill: var(--ink); }
+.flow-node-label { font-family: var(--font); font-size: 17px; font-weight: 600; fill: var(--ink-2); }
+.flow-num { font-family: var(--font); font-size: 15px; font-weight: 700; fill: #fff; }
+/* Both hub lines share one style (flow-hub-2); the circle shrank with them. */
+.flow-hub-2 { font-family: var(--font); font-size: 21px; font-weight: 650; letter-spacing: .02em; fill: var(--blue); }
+.flow-feedback { font-family: var(--font); font-size: 17px; font-weight: 600; letter-spacing: .06em;
+  fill: var(--blue); paint-order: stroke; stroke: #fff; stroke-width: 5px; stroke-linejoin: round; }
+.flow-domain { font-family: var(--font); font-size: 19px; fill: var(--ink-3); text-anchor: middle; }
+/* .flow-caption is a <g>; text children inherit font / size / fill / anchor. */
+.flow-caption { font-family: var(--font); font-size: 19px; fill: var(--ink-3); text-anchor: middle; }
+
+/* The dashed "marching ants" are the data flow. SMIL packets ride on top,
+   and each card's three illustrated nodes are joined by the same moving dash
+   so the pipeline reads as a flow INSIDE the card as well as around the ring. */
+.flow-arc, .flow-inner-link { animation: flowDash 1s linear infinite; }
+@keyframes flowDash { to { stroke-dashoffset: -16; } }
+.flow-card, .flow-arc-g { transition: opacity .45s var(--ease); }
+.flow-arc { transition: stroke-width .45s var(--ease), opacity .45s var(--ease); }
+
+/* Clicking a stage chip dims everything but that stage + its outgoing arc. */
+.flow-stage[data-focus="0"] .flow-card:not([data-flow="0"]),
+.flow-stage[data-focus="1"] .flow-card:not([data-flow="1"]),
+.flow-stage[data-focus="2"] .flow-card:not([data-flow="2"]),
+.flow-stage[data-focus="3"] .flow-card:not([data-flow="3"]),
+.flow-stage[data-focus="0"] .flow-arc-g:not([data-arc="0"]),
+.flow-stage[data-focus="1"] .flow-arc-g:not([data-arc="1"]),
+.flow-stage[data-focus="2"] .flow-arc-g:not([data-arc="2"]),
+.flow-stage[data-focus="3"] .flow-arc-g:not([data-arc="3"]) { opacity: .3; }
+.flow-stage[data-focus="0"] .flow-arc-g[data-arc="0"] .flow-arc,
+.flow-stage[data-focus="1"] .flow-arc-g[data-arc="1"] .flow-arc,
+.flow-stage[data-focus="2"] .flow-arc-g[data-arc="2"] .flow-arc,
+.flow-stage[data-focus="3"] .flow-arc-g[data-arc="3"] .flow-arc { stroke-width: 3.4; opacity: 1; }
+
+/* L1 cards are clickable: they zoom into the six-step Level 2 view. */
+.flow-card { cursor: pointer; }
+.flow-card > rect:first-child { transition: stroke-opacity .2s var(--ease); }
+.flow-card:hover > rect:first-child { stroke-opacity: .75; }
+
+/* The "Click to view more" cue reuses .tab-hint exactly. JS left-aligns it
+   just beyond the first card's right edge (above the outgoing arc), so it
+   never overlaps the card or the dashed line in either language. */
+.flow-stage .tab-hint.flow-l2-hint {
+  position: absolute; z-index: 3; transform: translateY(-50%);
+  margin-left: 0; padding: 2px 5px; border: 0; border-radius: 6px;
+  background: rgba(255, 255, 255, .88); cursor: pointer;
+  font-size: 10.5px; line-height: 1.2; white-space: nowrap;
+}
+.flow-stage .tab-hint.flow-l2-hint:hover { color: var(--blue-ink); }
+.flow-stage .tab-hint.flow-l2-hint svg { width: 15px; height: 15px; }
+.flow-stage .tab-hint.flow-l2-hint:hover svg { transform: translateX(-3px); }
+.flow-stage .tab-hint.flow-l2-hint:focus-visible { outline: 2px solid var(--blue-2); outline-offset: 3px; }
+.flow-back { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.flow-back svg { width: 13px; height: 13px; flex: none; }
+.flow-back:hover svg { transform: translateX(-2px); }
+.flow-back svg { transition: transform .2s var(--ease); }
+
+/* Level 2 typography lives inside the 1000x1120 viewBox. */
+.flow-l2-hnum { font-family: var(--font); font-size: 19px; font-weight: 700; fill: #fff; }
+.flow-l2-htitle { font-family: var(--font); font-size: 32px; font-weight: 650; fill: var(--ink); }
+.flow-l2-stage { font-family: var(--font); font-size: 14px; fill: var(--ink-4); }
+.flow-l2-lead { font-family: var(--font); font-size: 18px; fill: var(--ink-3); }
+.flow-l2-num { font-family: var(--font); font-size: 14px; font-weight: 700; fill: #fff; }
+.flow-l2-title { font-family: var(--font); font-size: 22px; font-weight: 650; fill: var(--ink); }
+.flow-l2-desc { font-family: var(--font); font-size: 17px; fill: var(--ink-3); }
+.flow-l2-step { font-family: var(--font); font-size: 12px; fill: var(--ink-4); }
+.flow-caption-l2 { font-family: var(--font); font-size: 18px; fill: var(--ink-2); }
+.flow-l2-link { animation: flowDash 1s linear infinite; }
+.flow-l2-card { cursor: default; }
+
+@media (prefers-reduced-motion: reduce) {
+  .flow-arc, .flow-inner-link, .flow-l2-link { animation: none; }
+  .flow-packet, .flow-spoke-dot, .flow-pulse, .flow-l2-packet { display: none; }
+  .flow-card, .flow-arc-g, .flow-arc { transition: none; }
+}
+@media (max-width: 600px) {
+  .flow-controls { flex-wrap: wrap; gap: 8px; }
+  .flow-count { margin-left: 0; width: 100%; text-align: right; font-size: 9.5px; }
+  /* Let the chip row own the full line and wrap, instead of clipping the 4th. */
+  .flow-mode { flex: 1 1 100%; min-width: 0; flex-wrap: wrap; }
+  .flow-mode button { padding: 5px 9px; font-size: 10px; }
+  /* The ring scales with width, so lift SVG type a notch on small screens. */
+  .flow-title { font-size: 27px; }
+  .flow-node-label { font-size: 22px; }
+  .flow-num { font-size: 18px; }
+  .flow-hub-2 { font-size: 25px; }
+  .flow-feedback { font-size: 20px; }
+  .flow-domain { font-size: 23px; }
+  .flow-caption { font-size: 23px; }
+  /* Level 2 scales with the same viewBox, so lift its type by the same notch. */
+  .flow-l2-htitle { font-size: 40px; }
+  .flow-l2-lead { font-size: 23px; }
+  .flow-l2-stage { font-size: 18px; }
+  .flow-l2-title { font-size: 27px; }
+  /* 19px leaves room for the tighter CJK wrap used on narrow screens. */
+  .flow-l2-desc { font-size: 19px; }
+  .flow-l2-num { font-size: 18px; }
+  .flow-l2-hnum { font-size: 23px; }
+  .flow-l2-step { font-size: 16px; }
+  .flow-caption-l2 { font-size: 23px; }
+  .flow-stage .tab-hint.flow-l2-hint { font-size: 9px; padding: 1px 4px; }
+  .flow-stage .tab-hint.flow-l2-hint svg { width: 12px; height: 12px; }
+}
+@media (max-width: 360px) {
+  .flow-mode button { padding: 4px 7px; font-size: 9.5px; }
+}

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Hansen Hon. — product work across supply chain, tech, finance and e-commerce, plus a short note on the person behind it." />
+  <title>Portfolio of Hansen</title>
+  <link rel="icon" type="image/png" href="assets/logos/web-logo.png" />
+
+  <!-- ── Discovery opt-out ──────────────────────────────────────────────
+       Ask crawlers not to index, follow, cache or quote this page.
+       These are advisory signals: compliant search engines and AI crawlers
+       honour them; they are NOT access control. See README.md.            -->
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex, max-snippet:-1, max-image-preview:none, max-video-preview:-1" />
+  <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet" />
+  <meta name="bingbot" content="noindex, nofollow, noarchive" />
+  <!-- Declarative AI-crawler opt-outs; enforcement lives in robots.txt -->
+  <meta name="GPTBot" content="noindex, nofollow" />
+  <meta name="OAI-SearchBot" content="noindex, nofollow" />
+  <meta name="ChatGPT-User" content="noindex, nofollow" />
+  <meta name="CCBot" content="noindex, nofollow" />
+  <meta name="ClaudeBot" content="noindex, nofollow" />
+  <meta name="anthropic-ai" content="noindex, nofollow" />
+  <meta name="Google-Extended" content="noindex, nofollow" />
+  <meta name="Applebot-Extended" content="noindex, nofollow" />
+  <meta name="PerplexityBot" content="noindex, nofollow" />
+  <meta name="Bytespider" content="noindex, nofollow" />
+  <meta name="Meta-ExternalAgent" content="noindex, nofollow" />
+  <meta name="Amazonbot" content="noindex, nofollow" />
+  <meta name="Diffbot" content="noindex, nofollow" />
+  <meta name="cohere-ai" content="noindex, nofollow" />
+  <!-- Don't leak this URL through Referer headers on outbound links -->
+  <meta name="referrer" content="no-referrer" />
+
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Tab-owned styles. Loaded after the shared sheet; all selectors are
+       scoped to their own module, so cascade order is unambiguous. -->
+  <link rel="stylesheet" href="tab/supply-chain/supply-chain.css" />
+  <link rel="stylesheet" href="tab/me/me.css" />
+
+  <!-- Load order: shared runtime -> case studies -> interactive demos -> Me.
+       Every file is a plain defer script (no ES modules, no fetch), so the
+       site still runs from file:// with no build step and no server.
+       core/app.js boots on DOMContentLoaded, after all modules registered. -->
+  <script src="warm.js" defer></script>
+  <script src="core/app.js" defer></script>
+  <script src="tab/supply-chain/supply-chain.js" defer></script>
+  <script src="tab/tech/tech.js" defer></script>
+  <script src="tab/finance/finance.js" defer></script>
+  <script src="tab/e-commerce/e-commerce.js" defer></script>
+  <script src="tab/supply-chain/cluster.js" defer></script>
+  <script src="tab/supply-chain/flow.js" defer></script>
+  <script src="tab/me/map-data.js" defer></script>
+  <script src="tab/me/me.js" defer></script>
+</head>
+<body>
+
+  <!-- ── Header ─────────────────────────────────────────────── -->
+  <header class="nav">
+    <div class="nav-inner">
+      <a class="brand" role="button" tabindex="0" aria-label="Back to work">
+        <span class="brand-text">Hansen Hon.</span>
+        <span class="brand-note" data-i18n="brand.note">Evolved @ Apple, Microsoft, Tencent, Huawei | Build @ Tech+Biz</span>
+      </a>
+
+      <nav class="domain-tabs" id="domain-tabs" aria-label="Work domains"></nav>
+
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" data-lang="en" class="active" aria-pressed="true">EN</button>
+        <button type="button" data-lang="zh" aria-pressed="false">中文</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ── Work ──────────────────────────────────────────────── -->
+    <section class="work" id="work">
+      <div class="container" id="products-container"></div>
+    </section>
+
+    <!-- Module tabs (e.g. Me) render here, isolated from the work listing. -->
+    <section class="me-view" id="me-view" hidden></section>
+  </main>
+
+  <!-- ── Floating TOC (no layout footprint) ─────────────────── -->
+  <nav class="toc" aria-label="On this page">
+    <ol class="toc-list" id="toc-list"></ol>
+  </nav>
+
+  <!-- ── Footer ─────────────────────────────────────────────── -->
+  <footer class="footer">
+    <div class="container">
+      <p class="footer-contact">
+        <span data-i18n="footer.contact.before">Contact me via </span><a href="mailto:HansenHonnor@163.com" data-i18n="footer.email">Email</a><span data-i18n="footer.contact.mid"> or </span><a href="https://linkedin.com/in/hansenhonnor" target="_blank" rel="noopener" data-i18n="footer.linkedin">LinkedIn</a><span data-i18n="footer.contact.after"> for job opportunities.</span>
+      </p>
+      <p class="footer-slogan">
+        <span class="slogan-lead" data-i18n="footer.slogan.lead">Turn technical depth into business outcomes.</span>
+      </p>
+      <div class="footer-note">
+        <p data-i18n="footer.note.lead">Code is cheap now. Understanding the problem, building the data, and letting AI earn its place in the workflow — those are not.</p>
+        <p data-i18n="footer.note">Across supply chain, tech, finance and e-commerce, the pattern is the same: find the real pain point, map the workflow behind it, and build the data foundation before any model. AI is a tool, not the brief. I use it only where it measurably improves a decision or a process — and when a simpler system does the job better, simpler wins.</p>
+      </div>
+      <p class="footer-legal" data-i18n="footer.legal">© 2020-2030  ·  All metrics, details and sample data above are generalized to respect the confidentiality of previous employers/clients.</p>
+      <p class="footer-legal footer-legal-sub" data-i18n="footer.ai">© AI Disclaimer · ~70% of this site's code comes from projects I built before AI era; the rest was AI-assisted, reviewed by me.</p>
+    </div>
+  </footer>
+
+</body>
+</html>
