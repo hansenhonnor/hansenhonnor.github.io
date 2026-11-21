@@ -1,0 +1,30 @@
+/* ==========================================================================
+   tab/finance/finance.css — Treasury Link 演示专属样式（仅 Finance tab 使用）。
+   全部选择器带 .lf- 前缀，只作用于作品内联 SVG 图；keyframes 同理独立命名，
+   不与 supply-chain.css 的 flowDash 等动画互相干扰。
+   ========================================================================== */
+
+.lf-svg { display: block; width: 100%; height: auto; }
+.lf-svg text { font-size: 11.5px; font-weight: 600; fill: var(--ink-2); }
+.lf-svg .lf-dim { font-size: 10px; font-weight: 500; fill: var(--ink-4); }
+.lf-svg .lf-warn { font-size: 10px; font-weight: 600; fill: var(--clay); }
+.lf-svg .lf-ok { font-size: 10px; font-weight: 650; fill: var(--green-ink); }
+.lf-svg .lf-badge { font-size: 10px; font-weight: 700; }
+.lf-svg .lf-old { fill: var(--bg-alt); stroke: var(--line); }
+.lf-svg .lf-white { fill: #fff; stroke: var(--line); }
+
+/* viewBox 图形在窄屏整体等比缩小，字号按 flow.js 的做法在断点内调大，
+   让 320–640px 下示意文字仍可读（文字溢出的少量像素落在空白槽内）。 */
+@media (max-width: 640px) {
+  .lf-svg text { font-size: 18px; }
+  .lf-svg .lf-dim, .lf-svg .lf-warn, .lf-svg .lf-ok { font-size: 13.5px; }
+  .lf-svg .lf-badge { font-size: 14px; }
+}
+
+/* marching ants — the Factory Flow language, scoped to this tab's diagrams */
+.lf-svg .lf-ants { animation: lfDash 1.1s linear infinite; }
+@keyframes lfDash { to { stroke-dashoffset: -18; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .lf-svg .lf-ants { animation: none; }
+}

@@ -1,0 +1,39 @@
+/* ==========================================================================
+   tab/tech/tech.css — Portfolio Pipeline 演示专属样式（仅 Tech tab 使用）。
+   全部选择器带 .pp- 前缀，只作用于作品内联 SVG 图；keyframes 独立命名，
+   不与 finance.css 的 lfDash / supply-chain.css 的 flowDash 互相干扰。
+   ========================================================================== */
+
+.pp-svg { display: block; width: 100%; height: auto; }
+.pp-svg text { font-size: 11.5px; font-weight: 600; fill: var(--ink-2); }
+.pp-svg .pp-ttl { font-size: 10px; font-weight: 650; }
+.pp-svg .pp-dim { font-size: 10px; font-weight: 500; fill: var(--ink-4); }
+.pp-svg .pp-badge { font-size: 9px; font-weight: 700; }
+.pp-svg .pp-tile { cursor: default; }
+/* 输入说明小字：虚线框正下方左栏（x=4，最宽约到 116u），右侧 120u 起
+   是第二行输出框，所以它不随断点放大、反而逐级缩小，任何宽度都留在
+   左栏内，不压到输出框。 */
+.pp-svg .pp-cap { font-size: 9.5px; font-weight: 500; fill: var(--ink-4); }
+
+/* viewBox 图形在窄屏整体等比缩小，字号按 flow.js 的做法在断点内调大。
+   分级依据 = 最长文案能否落回自己的色块：阶段标题最长 15 字符（Azure
+   Functions）→ 12.5px 在 116u 宽色块内；副标也在块内，最长 18 字符
+   （CO-STAR extraction）→ 11.5px；badge 药丸 64u 宽，10.5px 容下 serverless。 */
+@media (max-width: 640px) {
+  .pp-svg text { font-size: 16px; }
+  .pp-svg .pp-ttl { font-size: 12.5px; }
+  .pp-svg .pp-dim { font-size: 11.5px; }
+  .pp-svg .pp-badge { font-size: 10.5px; }
+  .pp-svg .pp-cap { font-size: 8.5px; }
+}
+@media (max-width: 460px) { .pp-svg .pp-cap { font-size: 7.5px; } }
+@media (max-width: 400px) { .pp-svg .pp-cap { font-size: 7px; } }
+@media (max-width: 340px) { .pp-svg .pp-cap { font-size: 6px; } }
+
+/* marching ants — the Factory Flow language, scoped to this tab's diagrams */
+.pp-svg .pp-ants { animation: ppDash 1.1s linear infinite; }
+@keyframes ppDash { to { stroke-dashoffset: -18; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .pp-svg .pp-ants { animation: none; }
+}

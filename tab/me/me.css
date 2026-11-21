@@ -1,0 +1,717 @@
+/* ==========================================================================
+   tab/me/me.css — everything the "Me" module owns. Loaded after styles.css.
+   Shell variables (--blue, --ink-*, --line-*) come from styles.css; this file
+   only defines .me-* rules so other tabs stay untouched.
+   ========================================================================== */
+
+.me-view { padding: 22px 0 72px; background: #fff; scroll-margin-top: var(--nav-h, 64px); }
+.me-view[hidden], .work[hidden] { display: none !important; }
+
+.me-inner { width: min(1160px, calc(100% - 64px)); margin: 0 auto; }
+
+/* ── Caption only (section switching lives in the floating TOC) ── */
+.me-caption { margin: 0; font-size: 13px; line-height: 1.6; color: var(--ink-3); text-align: center; }
+
+/* ── Map canvas ─────────────────────────────────────────────── */
+.me-map-scroll { margin-top: 14px; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+.me-map-scroll::-webkit-scrollbar { height: 5px; }
+.me-map-scroll::-webkit-scrollbar-track { background: transparent; }
+.me-map-scroll::-webkit-scrollbar-thumb { background: var(--line); border-radius: 99px; }
+
+.me-map {
+  position: relative; width: 100%; min-width: 720px;
+  aspect-ratio: 1100 / 650; background: #fff;
+  container-type: inline-size;
+  animation: meIn .45s var(--ease) both;
+}
+@keyframes meIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+.me-map-svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.me-map-svg .me-land { fill: #eef4fa; stroke: #fff; stroke-width: 1.15; stroke-linejoin: round; }
+.me-map-svg .me-line { fill: none; stroke: var(--blue); stroke-width: 1.15; stroke-opacity: .38; }
+.me-map-svg .me-line-travel { fill: none; stroke: var(--blue-2); stroke-width: 1; stroke-opacity: .3; }
+.me-map-svg .me-dot { fill: #fff; stroke: var(--blue); stroke-width: 1.8; }
+.me-map-svg .me-dot-core { fill: var(--blue); }
+
+.me-overlay { position: absolute; inset: 0; --u: calc(100cqw / 1100); }
+.me-overlay > * { position: absolute; }
+
+/* City labels */
+.me-city {
+  transform: translate(-50%, -50%); white-space: nowrap;
+  /* Transparent label; the text-shadow keeps nearby horizontal lines readable. */
+  padding: calc(1 * var(--u)) calc(4 * var(--u));
+  border-radius: calc(3 * var(--u)); background: transparent;
+  font-size: clamp(6px, calc(12 * var(--u)), 12.5px); font-weight: 650;
+  letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2);
+  text-shadow: 0 0 3px #fff;
+  pointer-events: none;
+}
+
+/* Product links inside Me copy ([label](#id) via rich()): quiet inline link,
+   opens the project card in a new tab. */
+.me-plink {
+  color: var(--blue); text-decoration: underline;
+  text-decoration-color: rgba(43, 84, 184, .35); text-underline-offset: 2px;
+}
+.me-plink:hover, .me-plink:focus-visible { text-decoration-color: var(--blue); }
+
+/* Teams: logo tiles rest on top of the horizontal line */
+.me-logo {
+  width: calc(38 * var(--u)); height: calc(38 * var(--u));
+  transform: translate(-50%, -100%); transform-origin: 50% 100%;
+  border-radius: calc(9 * var(--u));
+  background: #fff; border: 1px solid var(--line-soft);
+  box-shadow: 0 2px 9px rgba(29, 29, 31, .09);
+  display: flex; align-items: center; justify-content: center;
+  padding: calc(5 * var(--u)); cursor: default; z-index: 2;
+  transition: transform .22s var(--ease), border-color .22s var(--ease), box-shadow .22s var(--ease);
+}
+.me-logo img { width: 100%; height: 100%; object-fit: contain; object-position: center; display: block; }
+.me-logo:hover, .me-logo:focus-visible {
+  transform: translate(-50%, -100%) scale(1.09); border-color: var(--blue);
+  box-shadow: 0 5px 16px rgba(43, 84, 184, .18); z-index: 8; outline: none;
+}
+.me-logo-tip {
+  position: absolute; bottom: calc(100% + 10px); display: none;
+  /* The black box grows with the longest note so every line fits on one row.
+     62cqw keeps it inside the map on narrow screens; internal x-scroll is the
+     fallback there, never a line break. */
+  width: max-content; max-width: min(430px, 62cqw);
+  padding: 11px 14px; border-radius: 10px;
+  background: var(--ink); color: #fff; text-align: left;
+  font-size: 11px; line-height: 1.5; pointer-events: none;
+  overflow-x: auto; scrollbar-width: none;
+  box-shadow: 0 8px 22px rgba(29, 29, 31, .18); z-index: 20;
+}
+.me-logo-tip::-webkit-scrollbar { display: none; }
+/* Line 1: company on the left, coordinate pin + CITY on the right. */
+.me-logo-tip-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+}
+.me-logo-tip b { display: inline; font-size: 12px; font-weight: 650; margin: 0; }
+.me-logo-tip-city {
+  display: inline-flex; align-items: center; gap: 5px; margin: 0; padding: 0; border: 0;
+  font-size: 10px; font-weight: 650; letter-spacing: .1em; line-height: 1.3;
+  color: rgba(255, 255, 255, .82); white-space: nowrap;
+}
+.me-logo-tip-city svg { width: 12px; height: 12px; flex: none; }
+/* Line 2: team. The grey rule sits DIRECTLY below it. */
+.me-logo-tip-team { display: block; margin-top: 2px; color: rgba(255, 255, 255, .82); }
+.me-logo-tip-notes {
+  display: block; margin-top: 7px; padding-top: 7px;
+  border-top: 1px solid rgba(255, 255, 255, .16);
+}
+/* Each reflection is one independent, never-wrapping line. */
+.me-logo-tip-note {
+  display: block; white-space: nowrap; line-height: 1.65;
+  color: rgba(255, 255, 255, .94);
+}
+.me-logo-tip-note + .me-logo-tip-note { margin-top: 2px; }
+/* Keep tooltips inside the map: right-hand lines open leftwards, and vice versa.
+   display:none while idle so invisible boxes never add stray scroll width. */
+.me-logo.side-right .me-logo-tip { right: 0; }
+.me-logo.side-left .me-logo-tip { left: 0; }
+.me-logo:hover .me-logo-tip, .me-logo:focus .me-logo-tip,
+.me-logo:focus-visible .me-logo-tip {
+  display: block; animation: meTipIn .2s var(--ease) both;
+}
+@keyframes meTipIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Travel: polaroid-style photo cards */
+.me-photo {
+  width: calc(94 * var(--u)); height: calc(78 * var(--u));
+  padding: calc(4 * var(--u)); transform: translate(-50%, -50%) rotate(var(--tilt, 0deg));
+  background: #fff; border: 1px solid var(--line-soft); border-radius: calc(3 * var(--u));
+  box-shadow: 0 4px 16px rgba(29, 29, 31, .13); cursor: pointer; z-index: 3;
+  transition: transform .25s var(--ease), box-shadow .25s var(--ease), border-color .25s var(--ease);
+}
+.me-photo img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: calc(1.5 * var(--u)); }
+.me-photo:hover, .me-photo:focus-visible {
+  transform: translate(-50%, -50%) rotate(0deg) scale(1.1);
+  border-color: var(--blue); box-shadow: 0 10px 28px rgba(43, 84, 184, .22); z-index: 9; outline: none;
+}
+.me-photo:hover .me-photo-count, .me-photo:focus-visible .me-photo-count { transform: rotate(0deg); }
+.me-photo::after {
+  content: ""; position: absolute; inset: calc(4 * var(--u)); pointer-events: none;
+  background: linear-gradient(180deg, transparent 55%, rgba(29, 29, 31, .14));
+}
+
+/* Number of photos in this journal — solid blue circle, white digits,
+   resting on the card's top-right corner. Counter-rotated so the number
+   stays upright even though the polaroid is tilted. */
+.me-photo-count {
+  position: absolute; z-index: 4;
+  top: calc(-10 * var(--u)); right: calc(-10 * var(--u));
+  width: calc(26 * var(--u)); height: calc(26 * var(--u));
+  min-width: 15px; min-height: 15px;
+  border-radius: 50%; background: var(--blue); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  /* The map scales down on mobile; keep the digit legible rather than
+     shrinking it to ~4px along with everything else. */
+  font-size: max(8px, calc(13 * var(--u))); font-weight: 650; line-height: 1;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 2px 9px rgba(43, 84, 184, .32);
+  transform: rotate(calc(-1 * var(--tilt, 0deg)));
+  pointer-events: none;
+}
+
+/* Map legend — sits below the canvas in normal flow, so it can never
+   collide with a city label or a photo card when the map is scaled down. */
+.me-legend {
+  display: flex; flex-direction: row; justify-content: center; gap: 22px;
+  margin: 14px 0 0; font-size: 11px; color: var(--ink-3);
+  pointer-events: none; white-space: nowrap;
+}
+.me-legend div { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.me-legend i {
+  width: 9px; height: 9px; border-radius: 50%;
+  border: 1.8px solid var(--blue); background: #fff; flex: none;
+}
+.me-legend i.rule {
+  width: 18px; height: 0; border: 0; border-top: 1.5px solid var(--blue);
+  border-radius: 0; opacity: .55;
+}
+.me-legend i.dot { position: relative; }
+.me-legend i.dot::after {
+  content: ""; position: absolute; left: 50%; top: 50%;
+  width: 3px; height: 3px; border-radius: 50%;
+  background: var(--blue); transform: translate(-50%, -50%);
+}
+
+/* ── Lightbox ───────────────────────────────────────────────── */
+.me-lightbox {
+  position: fixed; inset: 0; z-index: 300; display: flex; align-items: center; justify-content: center;
+  padding: 28px; background: rgba(245, 245, 247, .84);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  animation: lbIn .25s var(--ease) both;
+}
+@keyframes lbIn { from { opacity: 0; } to { opacity: 1; } }
+.me-lb-panel {
+  position: relative; display: grid; grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr);
+  /* A portrait photo's intrinsic ratio would otherwise stretch the auto row
+     past the fixed panel height and push .me-lb-bottom out of view. */
+  grid-template-rows: minmax(0, 1fr);
+  width: min(1000px, 100%); height: min(560px, 84vh);
+  background: #fff; border-radius: 18px; overflow: hidden;
+  box-shadow: 0 24px 70px rgba(29, 29, 31, .18); border: 1px solid rgba(210, 210, 215, .6);
+  animation: lbPanel .3s var(--ease) both;
+}
+@keyframes lbPanel { from { transform: translateY(12px) scale(.985); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* Left stage: a blurred enlargement of the current photo fills the letterbox
+   area, so portrait images never sit on a flat white plate. */
+.me-lb-stage { position: relative; min-width: 0; min-height: 0; overflow: hidden; background: #f5f5f7; }
+.me-lb-bg {
+  position: absolute; inset: -12%; width: 124%; height: 124%; display: block;
+  object-fit: cover; object-position: center;
+  filter: blur(30px) saturate(1.22); opacity: .72;
+  transform: scale(1.06); pointer-events: none;
+}
+.me-lb-photo {
+  position: absolute; inset: 0; width: 100%; height: 100%; display: block;
+  object-fit: contain; object-position: center; min-height: 0;
+}
+
+/* Filmstrip: translucent frosted glass over the blurred stage, no side
+   direction arrows — only the four corner brackets mark the current slide. */
+.me-lb-film {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 3;
+  display: flex; align-items: center; gap: 10px;
+  padding: 16px 18px 18px;
+  overflow-x: auto; overflow-y: hidden;
+  -webkit-overflow-scrolling: touch; scroll-behavior: smooth;
+  background: rgba(255, 255, 255, .16);
+  backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  scrollbar-width: none;
+}
+.me-lb-film::-webkit-scrollbar { display: none; }
+.me-lb-film[hidden] { display: none; }
+.me-lb-thumb {
+  position: relative; flex: 0 0 auto; width: 74px; height: 53px;  /* 1.4 : 1 */
+  padding: 0; border: 0; border-radius: 6px; background: transparent; cursor: pointer;
+  transition: transform .2s var(--ease);
+}
+.me-lb-thumb:hover { transform: translateY(-2px); }
+.me-lb-thumb:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+.me-lb-thumb img {
+  width: 100%; height: 100%; display: block; object-fit: cover; object-position: center;
+  border-radius: 6px; box-shadow: 0 2px 10px rgba(29, 29, 31, .22);
+  opacity: .74; transition: opacity .2s var(--ease);
+}
+.me-lb-thumb:hover img, .me-lb-thumb.is-current img { opacity: 1; }
+/* Four L-shaped corners OUTSIDE the thumbnail (negative offsets). */
+.me-lb-thumb .me-cn {
+  position: absolute; width: 9px; height: 9px; opacity: 0;
+  pointer-events: none; transition: opacity .2s var(--ease);
+}
+.me-lb-thumb.is-current .me-cn { opacity: 1; }
+.me-cn-tl { top: -4px; left: -4px;  border-top: 2px solid var(--blue);    border-left: 2px solid var(--blue); }
+.me-cn-tr { top: -4px; right: -4px; border-top: 2px solid var(--blue);    border-right: 2px solid var(--blue); }
+.me-cn-bl { bottom: -4px; left: -4px;  border-bottom: 2px solid var(--blue); border-left: 2px solid var(--blue); }
+.me-cn-br { bottom: -4px; right: -4px; border-bottom: 2px solid var(--blue); border-right: 2px solid var(--blue); }
+
+.me-lb-info {
+  padding: 44px 46px 32px; display: flex; flex-direction: column;
+  min-height: 0; overflow-y: auto;
+  scrollbar-width: thin; scrollbar-color: var(--line) transparent;
+}
+.me-lb-info::-webkit-scrollbar { width: 5px; }
+.me-lb-info::-webkit-scrollbar-thumb { background: var(--line); border-radius: 99px; }
+.me-lb-date { font-size: 27px; font-weight: 600; letter-spacing: -.03em; color: var(--ink); }
+.me-lb-place { margin-top: 12px; font-size: 12.5px; font-weight: 600; color: var(--blue); letter-spacing: .01em; }
+.me-lb-rule { width: 100%; height: 1px; background: var(--line-soft); margin: 22px 0; }
+.me-lb-note { font-size: 16px; line-height: 1.75; color: var(--ink-2); max-width: 34ch; }
+.me-lb-bottom { margin-top: auto; flex: none; padding-top: 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.me-lb-index { font-size: 11px; color: var(--ink-4); font-variant-numeric: tabular-nums; letter-spacing: .08em; white-space: nowrap; }
+.me-lb-nav { display: inline-flex; gap: 8px; flex: none; }
+.me-lb-nav button, .me-lb-close {
+  width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line);
+  background: #fff; color: var(--ink-2); display: inline-flex; align-items: center; justify-content: center;
+  transition: color .2s var(--ease), border-color .2s var(--ease), background .2s var(--ease);
+}
+.me-lb-nav button:hover, .me-lb-close:hover { color: var(--blue); border-color: var(--blue); background: var(--blue-wash); }
+.me-lb-nav svg, .me-lb-close svg { width: 15px; height: 15px; }
+.me-lb-close { position: absolute; top: 18px; right: 18px; z-index: 4; width: 32px; height: 32px;
+  border: 0; background: rgba(118, 118, 128, .12); color: var(--ink-2); }
+.me-lb-close:hover { background: rgba(43, 84, 184, .12); }
+.me-lb-close:focus-visible, .me-lb-nav button:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+/* ── Time: two counter-moving hobby marquees ─────────────────────────
+   Row 1 drifts right (photo above caption); row 2 drifts left (caption
+   above photo). Both ends fade out and blur into the white page.          */
+.me-time-stage { margin-top: 14px; }
+.me-time-viewport {
+  position: relative; overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 7%, #000 93%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 7%, #000 93%, transparent 100%);
+}
+/* Blur only the two ends: the mask keeps the middle crisp. */
+.me-time-viewport::before {
+  content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  -webkit-mask-image: linear-gradient(90deg, #000 0, transparent 12%, transparent 88%, #000 100%);
+  mask-image: linear-gradient(90deg, #000 0, transparent 12%, transparent 88%, #000 100%);
+}
+/* A soft white haze on top, like the reference prototype. */
+.me-time-viewport::after {
+  content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none;
+  background: linear-gradient(90deg, rgba(255,255,255,.94) 0, rgba(255,255,255,0) 11%,
+                              rgba(255,255,255,0) 89%, rgba(255,255,255,.94) 100%);
+}
+.me-time-row {
+  display: flex; width: max-content; will-change: transform;
+  animation: meTimeRight 46s linear infinite;
+}
+.me-time-row.is-reverse { animation: meTimeLeft 46s linear infinite; }
+@keyframes meTimeRight { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+@keyframes meTimeLeft  { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+/* Somebody is looking: hold both rows, resume on leave. */
+.me-time-stage:hover .me-time-row { animation-play-state: paused; }
+.me-time-item { flex: 0 0 auto; width: 194px; margin-right: 22px; }
+.me-time-img {
+  height: 236px; border-radius: 12px; overflow: hidden; background: #f5f5f7;
+}
+.me-time-img img { width: 100%; height: 100%; display: block; object-fit: cover; object-position: center; }
+.me-time-title {
+  display: block; margin: 12px 0 0; text-align: center; white-space: nowrap;
+  font-size: 13px; font-weight: 600; letter-spacing: .01em; color: var(--blue);
+}
+.me-time-row.is-reverse .me-time-title { margin: 0 0 12px; }
+.me-time-viewport + .me-time-viewport { margin-top: 34px; }
+
+/* ── Talent: three photo-backed cards ───────────────────────────────
+   The uploaded originals are used byte for byte. A real <img> keeps the
+   relative src resolving against the HTML document (a CSS custom property
+   would resolve against tab/me.css and 404). Fading + blur live here, while
+   ::after lays a soft white wash so the dark type stays readable. The card's
+   overflow:hidden gives the rounded corners. No icons, no numbers, no
+   coloured type: just the site's black / grey.                              */
+.me-talent-grid {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px; margin-top: 18px;
+}
+.me-talent-card {
+  position: relative; overflow: hidden; border-radius: 16px;
+  min-height: 590px; padding: 30px 28px 32px;
+  background: #fff; box-shadow: 0 1px 3px rgba(29, 29, 31, .05);
+  transition: box-shadow .22s var(--ease), transform .22s var(--ease);
+}
+.me-talent-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(29, 29, 31, .07);
+}
+.me-talent-photo {
+  position: absolute; top: -8px; left: -8px;
+  width: calc(100% + 16px); height: calc(100% + 16px);
+  display: block; object-fit: cover; object-position: center; pointer-events: none;
+  /* scale past the edges so the blur never reveals a white seam */
+  filter: blur(1.6px) saturate(.70); opacity: .44; transform: scale(1.02);
+}
+.me-talent-card::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(180deg,
+    rgba(255, 255, 255, .85) 0%, rgba(255, 255, 255, .68) 48%, rgba(255, 255, 255, .82) 100%);
+}
+.me-talent-copy { position: relative; z-index: 1; }
+.me-talent-title {
+  margin: 0 0 18px; font-size: 21px; line-height: 1.3; font-weight: 650;
+  letter-spacing: -.01em; color: var(--ink);
+}
+.me-talent-body { margin: 0; font-size: 13px; line-height: 1.8; color: var(--ink-2); }
+.me-talent-body + .me-talent-body {
+  margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(29, 29, 31, .10);
+}
+/* Bold stays, colour does not. */
+.me-talent-body strong { color: var(--ink); font-weight: 650; }
+
+/* ── Tags: word cloud + project previews ────────────────────────
+   Centre-out near-rectangular packing: me.js places every chip
+   absolutely (hottest word at the centre, the rest filling a growing
+   rectangular front, so the cloud reads as a compact rectangle).
+   Per chip it sets --fs (rem, sqrt-scaled by frequency), --tcol
+   (frequency-blended blue) and optionally --fw; --tagscale shrinks the
+   whole cloud at narrow widths without touching the ranking. Chips stay
+   hidden until positioned, so a rebuild never flashes in the corner. */
+.me-tags-stage { margin-top: 12px; }
+.me-tags-cloud {
+  --tagscale: 1;
+  position: relative; width: 100%; min-height: 240px; margin-top: 6px;
+}
+.me-tag {
+  position: absolute; transform: translate(-50%, -50%); white-space: nowrap;
+  font-family: inherit; font-size: calc(var(--fs, .9rem) * var(--tagscale, 1));
+  font-weight: var(--fw, 620); line-height: 1.3; letter-spacing: -.006em;
+  color: var(--tcol, var(--blue));
+  background: none; border: 0; margin: 0; padding: 3px 8px; border-radius: 9px;
+  cursor: pointer; visibility: hidden; -webkit-tap-highlight-color: transparent;
+  transition: background .18s var(--ease), color .18s var(--ease);
+}
+.me-tag:hover { background: var(--blue-wash); }
+.me-tag:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; z-index: 3; }
+.me-tag.is-selected { background: var(--blue); color: #fff; }
+.me-tag.is-selected:hover { background: var(--blue); }
+
+.me-tags-detail { margin-top: 20px; border-top: 1px solid var(--line-soft); padding-top: 18px; }
+.me-tags-detail.is-idle { display: none; }
+
+.me-tag-cards {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(268px, 1fr));
+  gap: 12px; margin-top: 16px;
+}
+.me-tag-card {
+  display: flex; flex-direction: column; text-decoration: none; color: inherit;
+  background: #fff; border: 1px solid var(--line-soft); border-radius: 13px;
+  padding: 15px 17px 14px;
+  transition: transform .2s var(--ease), border-color .2s var(--ease), box-shadow .2s var(--ease);
+}
+.me-tag-card:hover {
+  transform: translateY(-2px); border-color: var(--blue);
+  box-shadow: 0 10px 26px rgba(43, 84, 184, .13);
+}
+.me-tag-card:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.me-tag-card-top { display: flex; align-items: center; gap: 9px; min-width: 0; }
+.me-tag-card-top strong {
+  font-size: 14.5px; font-weight: 650; letter-spacing: -.01em; color: var(--ink);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.me-tag-card-no {
+  flex: none; font-size: 10px; font-weight: 650; letter-spacing: .08em;
+  color: var(--ink-4); font-variant-numeric: tabular-nums;
+}
+/* Fit the shared company badge into the small card header row. */
+.me-tag-card .company-badge { width: 24px; height: 24px; margin-left: auto; border-radius: 6px; }
+.me-tag-card .company-badge-group { margin-left: auto; gap: 3px; }
+.me-tag-card .company-badge.na { z-index: 2; }
+.me-tag-card-domain {
+  margin-top: 7px; font-size: 10px; font-weight: 650; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--blue);
+}
+.me-tag-card-oneliner { margin-top: 5px; font-size: 12.5px; line-height: 1.65; color: var(--ink-2); }
+.me-tag-card-via {
+  margin-top: 8px; font-size: 11px; line-height: 1.5; color: var(--ink-3);
+  overflow-wrap: anywhere;
+}
+.me-tag-card-via::before { content: "via "; color: var(--ink-4); }
+.me-tag-card-open { margin-top: auto; padding-top: 10px; font-size: 11.5px; font-weight: 650; color: var(--blue); }
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 860px) {
+  .me-inner { width: calc(100% - 40px); }
+  .me-talent-grid { grid-template-columns: 1fr; gap: 14px; }
+  .me-talent-card { min-height: 0; padding: 24px 22px 26px; border-radius: 14px; }
+  .me-talent-title { font-size: 18px; margin-bottom: 14px; }
+  .me-talent-body { font-size: 12.5px; line-height: 1.75; }
+  .me-talent-body + .me-talent-body { margin-top: 13px; padding-top: 13px; }
+  .me-time-item { width: 132px; margin-right: 14px; }
+  .me-time-img { height: 164px; }
+  .me-time-title { font-size: 11.5px; margin-top: 9px; }
+  .me-time-row.is-reverse .me-time-title { margin: 0 0 9px; }
+  .me-time-viewport + .me-time-viewport { margin-top: 22px; }
+  /* Proportional fit: the 1100x650 canvas shrinks to the viewport width.
+     SVG uses viewBox and every overlay size is cqw-based, so nothing crops.
+     Users can still pinch-zoom in the browser for detail. */
+  /* Tooltips may grow taller than the map on mobile, so let them spill out
+     (the map itself is proportionally fitted and never scrolls horizontally). */
+  .me-map-scroll { overflow: visible; }
+  .me-map { min-width: 0; }
+  .me-city { letter-spacing: 0; text-shadow: 0 0 3px #fff, 0 0 3px #fff;
+    padding: 0 calc(2 * var(--u)); }
+  /* Desktop keeps every note on one unwrapped line. On mobile the box is
+     sized to the viewport instead of 62cqw, and long notes wrap so the whole
+     sentence is visible without horizontal scrolling. clampTip() in me.js
+     pins the box inside the viewport. */
+  .me-logo-tip {
+    font-size: clamp(9px, 1.9cqw, 11px); padding: 10px 12px; pointer-events: auto;
+    width: min(92vw, 430px); max-width: none; overflow: visible; white-space: normal;
+  }
+  .me-logo-tip-note { white-space: normal; overflow-wrap: anywhere; line-height: 1.55; }
+  .me-logo:hover, .me-logo:focus-visible { transform: translate(-50%, -100%); }
+  .me-logo.side-right .me-logo-tip, .me-logo.side-left .me-logo-tip { right: auto; }
+  .me-logo-tip b { font-size: 1.08em; }
+  .me-logo-tip-city { font-size: .9em; letter-spacing: .06em; }
+  .me-logo-tip-city svg { width: 10px; height: 10px; }
+  .me-lb-panel { grid-template-columns: 1fr; grid-template-rows: auto auto; height: min(86vh, 720px); overflow-y: auto; }
+  .me-lb-stage { height: 300px; }
+  .me-lb-info { padding: 28px 28px 30px; min-height: 250px; overflow-y: visible; }
+  .me-lb-date { font-size: 22px; }
+  .me-lb-rule { margin: 20px 0; }
+  .me-lb-note { font-size: 15px; }
+  .me-lb-film { padding: 13px 14px 15px; gap: 9px; }
+  .me-lb-thumb { width: 66px; height: 47px; }
+  /* Tags: shrink the whole cloud a step, keep the frequency ranking.
+     The layout keeps a 44px right gutter below 860px (layoutTags)
+     to stay clear of the floating TOC rail. */
+  .me-tags-cloud { --tagscale: .86; }
+  .me-tag { padding: 3px 7px; }
+}
+@media (max-width: 600px) {
+  .me-view { padding: 16px 0 56px; }
+  .me-lightbox { padding: 14px; }
+  .me-lb-stage { height: 250px; }
+  .me-lb-film { padding: 12px 12px 14px; gap: 8px; }
+  .me-lb-thumb { width: 58px; height: 41px; }
+  .me-lb-info { padding: 22px 20px 26px; }
+  .me-caption { font-size: 12.5px; }
+  .me-legend { gap: 14px; font-size: 10px; margin-top: 10px; }
+  .me-tags-cloud { --tagscale: .74; }
+  .me-tag { padding: 3px 6px; border-radius: 8px; }
+  .me-tag-cards { grid-template-columns: 1fr; gap: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .me-map, .me-lightbox, .me-lb-panel { animation: none; }
+  .me-time-row { animation: none; transform: none; }
+  .me-talent-card { transition: none; }
+  .me-photo, .me-logo, .me-lb-thumb, .me-lb-thumb img, .me-lb-thumb .me-cn { transition: none; }
+  .me-lb-film { scroll-behavior: auto; }
+  .me-tag, .me-tag-card { transition: none; }
+}
+
+/* ── Text: article reel + iPad reader + takeaway/tags ───────────────
+   3-col grid, equal side columns so the iPad sits dead centre. The reel is
+   a "carousel rail": all 12 rows always fill the rail top-edge to bottom-
+   edge (every row clickable, the column flush with the iPad frame); the
+   drum feel comes from paintTextRows in me.js waving tilt/depth/bump around
+   the active row. The iPad is one PNG (1840×2660, portrait) shown
+   whole at 80% opacity — no crop, no filter; the reader sits on the glass
+   rect inside it (≈5.9% / 9.1% / 6.1% / 9.8% insets). --top-inset is the
+   transparent margin above the device in the PNG (30px of 2660); reel and
+   side columns get it as padding-top so their top edges line up with the
+   iPad's. Side rail = fixed 2/3 TAKEAWAY + 1/3 TAGS, each scrolls inside.  */
+.me-text-stage {
+  --ipad-w: clamp(430px, 33vw, 560px);
+  --ipad-h: calc(var(--ipad-w) * 1.4457);
+  --top-inset: calc(var(--ipad-h) * 0.0113);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--ipad-w) minmax(0, 1fr);
+  gap: clamp(20px, 3.4vw, 60px);
+  align-items: stretch;
+  /* Break out of the Me column so reel and side reach for the window edges
+     (capped at 1560px so ultra-wide screens keep the reading measure sane).
+     Padding is symmetric to keep the iPad centred; the fixed TOC strip is
+     cleared by .me-text-side padding-right instead (see below). */
+  margin: 18px calc(50% - min(50vw, 780px)) 0;
+  padding: 0 clamp(16px, 4vw, 56px);
+}
+@media (min-width: 1340px) { .me-text-side { padding-right: 82px; } }
+
+/* Reel (left): carousel rail; the .is-active row lights up like a card. */
+.me-text-left { padding-top: var(--top-inset); }
+.me-text-rail {
+  position: relative; height: calc(var(--ipad-h) - var(--top-inset));
+  overflow: hidden; cursor: grab; touch-action: none;
+  -webkit-user-select: none; user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.me-text-rail:active { cursor: grabbing; }
+.me-text-rail:focus-visible { outline: 2px solid var(--blue); outline-offset: 4px; border-radius: 12px; }
+.me-text-drum {
+  position: absolute; inset: 0;
+  /* Row-height unit of the rail; JS (textRowGeom) measures the row instead
+     of reading this back, since calc() custom properties never resolve
+     through getComputedStyle. */
+  --row-h: calc((var(--ipad-h) - var(--top-inset)) * 0.075);
+  transform-style: preserve-3d; perspective: 1150px;
+}
+.me-text-row {
+  position: absolute; left: 0; right: 0; top: 50%;
+  height: var(--row-h);
+  margin-top: calc(var(--row-h) / -2);
+  display: flex; align-items: center; gap: 10px; padding: 0 14px;
+  border-radius: 14px; background: transparent;
+  will-change: transform, opacity; backface-visibility: hidden;
+  transition: transform .48s var(--ease, cubic-bezier(.4, 0, .2, 1)),
+              opacity .48s var(--ease, cubic-bezier(.4, 0, .2, 1)),
+              background .3s, box-shadow .3s;
+}
+.me-text-rail.is-dragging .me-text-row { transition: opacity .2s; }
+.me-text-row.is-active {
+  background: #fff;
+  box-shadow: inset 0 0 0 1px var(--line-soft),
+              0 8px 26px rgba(29, 29, 31, .10), 0 1px 0 var(--line-soft);
+}
+.me-text-no {
+  flex: none; width: 20px; text-align: right;
+  font-size: 11px; font-weight: 500; color: var(--ink-5); font-variant-numeric: tabular-nums;
+}
+.me-text-t {
+  flex: 1; min-width: 0; font-size: 13.5px; font-weight: 600; line-height: 1.26;
+  letter-spacing: -.01em; color: var(--ink-3);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.me-text-date { flex: none; font-size: 11.5px; font-style: italic; color: var(--ink-5); }
+.me-text-row.is-hover:not(.is-active) .me-text-t { color: var(--ink-2); }
+.me-text-row.is-active .me-text-t { font-size: 14.5px; color: var(--ink); }
+.me-text-row.is-active .me-text-no { color: var(--ink-3); }
+
+/* iPad (centre): whole-frame PNG + article screen on top of the glass. */
+.me-text-ipad {
+  position: relative; width: var(--ipad-w); max-width: 100%;
+  aspect-ratio: 1840 / 2660; container-type: inline-size;
+  justify-self: center;
+}
+.me-text-frame {
+  position: absolute; inset: 0; opacity: .8;
+  background: url("iPad - Silver - Portrait.png") center / 100% 100% no-repeat;
+}
+.me-text-reader {
+  position: absolute; left: 5.9%; top: 9.1%; right: 6.1%; bottom: 9.8%;
+  border-radius: 2.6cqw; overflow: hidden;
+  display: flex; flex-direction: column;
+}
+.me-text-doc {
+  flex: 1; overflow-y: auto; padding: 5cqw 5.6cqw 2.8cqw;
+  scrollbar-width: thin; scrollbar-color: var(--line) transparent;
+}
+.me-text-doc::-webkit-scrollbar { width: 5px; }
+.me-text-doc::-webkit-scrollbar-track { background: transparent; }
+.me-text-doc::-webkit-scrollbar-thumb { background: var(--line); border-radius: 99px; }
+.me-text-meta {
+  display: flex; justify-content: space-between; gap: 6px; align-items: baseline;
+  margin: 0 0 1.8cqw; font-size: 2.6cqw; color: var(--ink-4);
+}
+.me-text-src { font-weight: 650; color: var(--blue); }
+.me-text-title {
+  margin: 0 0 2.4cqw; font-size: 4.55cqw; font-weight: 700;
+  line-height: 1.22; letter-spacing: -.015em; color: var(--ink);
+}
+.me-text-quote {
+  margin: 0 0 2.6cqw; padding-left: 2.6cqw; font-size: 3.05cqw; line-height: 1.5;
+  font-style: italic; color: var(--ink-2); border-left: .5cqw solid var(--blue);
+}
+.me-text-lead { margin: 0 0 2.6cqw; font-size: 3.15cqw; font-weight: 550; line-height: 1.55; color: var(--ink-2); }
+.me-text-para { margin: 0 0 2.6cqw; font-size: 2.85cqw; line-height: 1.62; color: var(--ink-3); }
+.me-text-note { margin: .8cqw 0 0; font-size: 2.5cqw; line-height: 1.5; color: var(--ink-5); }
+.me-text-h4 {
+  margin: 3.5cqw 0 1.4cqw; font-size: 2.5cqw; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase; color: var(--ink-4);
+}
+.me-text-glance {
+  margin: 0; padding-left: 3.8cqw; font-size: 2.75cqw; line-height: 1.55; color: var(--ink-3);
+}
+.me-text-glance li { margin: 0 0 .9cqw; }
+.me-text-readfor {
+  margin: 3cqw 0 0; padding: 2.2cqw 2.7cqw; background: rgba(43, 84, 184, .05);
+  border-radius: 1.6cqw; font-size: 2.8cqw; line-height: 1.55; color: var(--ink-2);
+}
+.me-text-readfor span { font-weight: 700; color: var(--blue); }
+.me-text-reader .me-text-act { padding: 2.3cqw 5.6cqw 3.4cqw; border-top: 1px solid rgba(29, 29, 31, .08); }
+.me-text-open {
+  display: inline-block; font-size: 2.95cqw; font-weight: 650;
+  color: var(--blue); text-decoration: none;
+}
+.me-text-open:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+/* Takeaway + tags (right): fixed height, fixed 2/3 + 1/3 split, each block
+   scrolls inside itself so the column never changes size between articles. */
+.me-text-side {
+  height: calc(var(--ipad-h) - var(--top-inset));
+  padding-top: var(--top-inset); min-width: 0;
+  display: flex; flex-direction: column; gap: 20px;
+}
+.me-text-take { flex: 2; min-height: 0; display: flex; flex-direction: column; }
+.me-text-tagbox { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.me-text-eyebrow {
+  flex: none; margin: 0 0 12px; font-size: 13px; font-weight: 700;
+  letter-spacing: .055em; text-transform: uppercase; color: var(--ink-2);
+}
+.me-text-notes {
+  flex: 1; min-height: 0; overflow-y: auto; align-content: start;
+  margin: 0; padding: 0 8px 0 0; list-style: none; display: grid; gap: 13px;
+  scrollbar-width: thin; scrollbar-color: var(--line) transparent;
+}
+.me-text-notes::-webkit-scrollbar { width: 5px; }
+.me-text-notes::-webkit-scrollbar-thumb { background: var(--line); border-radius: 99px; }
+.me-text-notes li {
+  position: relative; padding-left: 16px;
+  font-size: 14px; line-height: 1.5; color: var(--ink-2);
+}
+.me-text-notes li::before {
+  content: ''; position: absolute; left: 0; top: .6em;
+  width: 6px; height: 6px; border-radius: 50%; background: var(--blue);
+}
+.me-text-notes .me-plink { color: var(--blue); }
+.me-text-chips {
+  flex: 1; min-height: 0; overflow-y: auto; align-content: start;
+  display: flex; flex-wrap: wrap; gap: 7px; padding-right: 8px;
+  scrollbar-width: thin; scrollbar-color: var(--line) transparent;
+}
+.me-text-chips::-webkit-scrollbar { width: 5px; }
+.me-text-chips::-webkit-scrollbar-thumb { background: var(--line); border-radius: 99px; }
+.me-text-chip {
+  font-size: 12px; font-weight: 620; line-height: 1.35;
+  color: var(--blue-ink); background: var(--blue-wash);
+  padding: 4px 11px; border-radius: 99px;
+}
+
+@media (max-width: 860px) {
+  /* stack; symmetric padding keeps the iPad centred, 40px gutter clears the
+     dot rail (right: 24px, 16px wide) */
+  .me-text-stage {
+    grid-template-columns: minmax(0, 1fr);
+    margin: 18px 0 0; padding: 0 40px;
+    --ipad-w: min(390px, 84vw); justify-items: center;
+  }
+  .me-text-left { order: 1; width: 100%; }
+  .me-text-ipad { order: 2; }
+  .me-text-side { order: 3; width: 100%; }
+  .me-text-row { padding: 0 10px; }
+  .me-text-row.is-active .me-text-t { font-size: 14px; }
+}
+@media (max-width: 600px) {
+  .me-text-stage { padding: 0 34px; }
+  .me-text-notes li { font-size: 13.5px; }
+  .me-text-eyebrow { font-size: 12px; }
+  .me-text-row { padding: 0 8px; gap: 8px; }
+  .me-text-t { font-size: 12.5px; -webkit-line-clamp: 1; }
+  .me-text-no { width: 17px; font-size: 10px; }
+  .me-text-date { font-size: 10.5px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .me-text-row { transition: opacity .2s linear; }
+}
